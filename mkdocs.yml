@@ -29,10 +29,12 @@ theme:
 extra_css:
   - stylesheets/extra.css
   - stylesheets/glossary-tooltips.css
+  - stylesheets/glossary-positioning.css
 
 extra_javascript:
   - javascripts/mobile-navigation.js
   - javascripts/glossary-tooltips.js
+  - javascripts/glossary-positioning.js
 
 plugins:
   - search:
