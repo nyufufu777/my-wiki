@@ -69,6 +69,84 @@
   text-underline-offset: 0.16em;
 }
 
+.term {
+  display: inline;
+  position: relative;
+}
+
+.term__label {
+  border-bottom: 1px dotted color-mix(in srgb, var(--wiki-accent) 70%, transparent);
+}
+
+.term__button {
+  align-items: center;
+  background: var(--wiki-accent);
+  border: 0;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: inherit;
+  font-size: 0.62rem;
+  font-weight: 800;
+  height: 1.05rem;
+  justify-content: center;
+  line-height: 1;
+  margin: 0 0.15rem 0 0.18rem;
+  padding: 0;
+  transform: translateY(-0.04em);
+  vertical-align: middle;
+  width: 1.05rem;
+}
+
+.term__button:focus-visible {
+  outline: 2px solid var(--md-default-fg-color);
+  outline-offset: 2px;
+}
+
+.term__description {
+  background: color-mix(in srgb, var(--md-default-bg-color) 96%, transparent);
+  border: 1px solid var(--wiki-line);
+  border-radius: 0.55rem;
+  box-shadow: 0 0.7rem 1.8rem color-mix(in srgb, var(--md-default-fg-color) 16%, transparent);
+  color: var(--md-default-fg-color);
+  font-size: 0.72rem;
+  font-weight: 500;
+  left: 0;
+  line-height: 1.55;
+  opacity: 0;
+  padding: 0.65rem 0.75rem;
+  pointer-events: none;
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  transform: translateY(-0.2rem);
+  transition: opacity 160ms ease, transform 160ms ease, visibility 160ms ease;
+  visibility: hidden;
+  width: min(18rem, 72vw);
+  z-index: 10;
+}
+
+.term:hover .term__description,
+.term:focus-within .term__description,
+.term.is-open .term__description {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.glossary-page dt {
+  color: var(--md-default-fg-color);
+  font-weight: 750;
+  margin-top: 1.5rem;
+}
+
+.glossary-page dd {
+  color: var(--md-default-fg-color--light);
+  margin: 0.35rem 0 0;
+  max-width: 72ch;
+}
+
 .md-typeset :not(pre) > code {
   border-radius: 0.35rem;
   color: var(--md-default-fg-color);
@@ -280,6 +358,10 @@
 }
 
 @media screen and (max-width: 76.234375em) {
+  .term__description {
+    width: min(17rem, calc(100vw - 2rem));
+  }
+
   .md-sidebar--primary .md-nav--primary,
   .md-sidebar--primary .md-nav--primary .md-nav {
     display: block;
