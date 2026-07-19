@@ -29,6 +29,9 @@ theme:
 extra_css:
   - stylesheets/extra.css
 
+extra_javascript:
+  - javascripts/mobile-navigation.js
+
 plugins:
   - search:
       lang: ja
