@@ -53,12 +53,17 @@ markdown_extensions:
 
 nav:
   - システムとネットワーク:
-      - API入門：使う側から設計する側まで: api.md
-      - APIの内部：DNSからカーネルまで: api-internals.md
-      - Sandbox入門：隔離・権限・調査の出発点: sandbox.md
-      - Sandboxの内部：OSが境界を作る仕組み: sandbox-internals.md
+      - API:
+          - 入門：使う側から設計する側まで: api.md
+          - 内部：DNSからカーネルまで: api-internals.md
+      - Sandbox:
+          - 入門：隔離・権限・調査の出発点: sandbox.md
+          - 内部：OSが境界を作る仕組み: sandbox-internals.md
   - Codex:
       - Codexのsandboxと承認: codex-sandbox.md
   - ソフトウェア設計:
-      - SDK入門：APIを使いやすくする部品群: sdk.md
-      - Agent SDK入門：自律的な処理を組み立てる: agent-sdk.md
+      - SDK:
+          - SDK入門：APIを使いやすくする部品群: sdk.md
+          - Agent SDK入門：自律的な処理を組み立てる: agent-sdk.md
+      - エージェント開発:
+          - LangGraph：状態を持つワークフローを実装する: langgraph.md
