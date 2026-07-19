@@ -1,0 +1,6 @@
+.term.is-open .term__description {
+  left: var(--term-popover-left, 0px);
+  position: fixed;
+  top: var(--term-popover-top, 0px);
+  width: var(--term-popover-width, min(18rem, calc(100vw - 2rem)));
+}
