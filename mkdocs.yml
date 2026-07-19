@@ -49,4 +49,5 @@ markdown_extensions:
       permalink: true
 
 nav:
-  - API: index.md
+  - 記事:
+      - API入門：使う側から設計する側まで: api.md
