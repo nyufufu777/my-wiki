@@ -59,3 +59,6 @@ nav:
       - Sandboxの内部：OSが境界を作る仕組み: sandbox-internals.md
   - Codex:
       - Codexのsandboxと承認: codex-sandbox.md
+  - ソフトウェア設計:
+      - SDK入門：APIを使いやすくする部品群: sdk.md
+      - Agent SDK入門：自律的な処理を組み立てる: agent-sdk.md
