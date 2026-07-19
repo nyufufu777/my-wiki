@@ -28,6 +28,7 @@ theme:
 
 extra_css:
   - stylesheets/extra.css
+  - stylesheets/glossary-tooltips.css
 
 extra_javascript:
   - javascripts/mobile-navigation.js
