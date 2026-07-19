@@ -12,7 +12,7 @@
 
 ## 必須の要素
 
-新しい記事は [記事テンプレート](../templates/learning-page.md) を使い、少なくとも次を含めます。
+新しい記事は [記事テンプレート](https://github.com/nyufufu777/my-wiki/blob/main/templates/learning-page.md) を使い、少なくとも次を含めます。
 
 - このページで分かること
 - 前提知識

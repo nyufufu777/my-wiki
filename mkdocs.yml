@@ -52,7 +52,13 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Programming:
+  - Learning path: learning-path/README.md
+  - Concepts: concepts/README.md
+  - Technologies: technologies/README.md
+  - Projects: projects/README.md
+  - Practices: practices/README.md
+  - Decisions: decisions/README.md
+  - Writing guide: writing-guide.md
+  - Examples:
       - Python: programming/python.md
-  - Science:
       - Neuroscience: science/neuroscience.md
