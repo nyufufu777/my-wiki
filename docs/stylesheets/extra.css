@@ -276,37 +276,37 @@
   }
 
   .md-sidebar--primary > .md-sidebar__scrollwrap > .md-sidebar__inner > .md-nav--primary > .md-nav__list > .md-nav__item {
-    margin: 0.45rem 0.55rem;
+    margin: 0.2rem 0.7rem;
   }
 
   .md-sidebar--primary > .md-sidebar__scrollwrap > .md-sidebar__inner > .md-nav--primary > .md-nav__list > .md-nav__item > .md-nav__link {
-    background: color-mix(in srgb, var(--md-primary-fg-color) 10%, var(--md-default-bg-color));
-    border: 1px solid color-mix(in srgb, var(--md-primary-fg-color) 24%, transparent);
-    border-radius: 0.55rem;
-    color: var(--md-primary-fg-color);
-    font-size: 0.82rem;
-    font-weight: 800;
-    letter-spacing: 0.01em;
-    padding: 0.65rem 0.75rem;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    color: var(--md-default-fg-color);
+    font-size: 0.84rem;
+    font-weight: 750;
+    padding: 0.55rem 0.35rem;
   }
 
   .md-sidebar--primary > .md-sidebar__scrollwrap > .md-sidebar__inner > .md-nav--primary > .md-nav__list > .md-nav__item > .md-nav__toggle:checked + .md-nav__link {
-    background: var(--md-primary-fg-color);
-    color: var(--md-primary-bg-color);
+    background: transparent;
+    color: var(--md-primary-fg-color);
   }
 
   .md-sidebar--primary .md-nav--primary .md-nav .md-nav__link {
-    border-left: 2px solid color-mix(in srgb, var(--md-primary-fg-color) 30%, transparent);
-    font-size: 0.76rem;
-    margin: 0.1rem 0.65rem 0.1rem 1.1rem;
-    min-height: 2.55rem;
-    padding-left: 0.7rem;
+    border-left: 0;
+    font-size: 0.78rem;
+    font-weight: 650;
+    margin: 0.05rem 0.7rem 0.05rem 1rem;
+    min-height: 2.4rem;
+    padding-left: 0.45rem;
   }
 
   .md-sidebar--primary .md-nav--primary .md-nav .md-nav .md-nav__link {
-    border-left-color: transparent;
     color: var(--md-default-fg-color--light);
     font-size: 0.72rem;
+    font-weight: 500;
     margin-left: 1.7rem;
   }
 }
