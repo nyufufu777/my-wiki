@@ -59,6 +59,7 @@ markdown_extensions:
 nav:
   - システムとネットワーク:
       - API:
+          - APIの種類と認証：目的に合わせて選ぶ: api-types.md
           - 入門：使う側から設計する側まで: api.md
           - 内部：DNSからカーネルまで: api-internals.md
       - Sandbox:
