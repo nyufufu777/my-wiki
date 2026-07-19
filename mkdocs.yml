@@ -1,8 +1,6 @@
 site_name: my-wiki
-site_description: 学習記録
+site_description: 技術資料
 site_url: https://nyufufu777.github.io/my-wiki/
-repo_url: https://github.com/nyufufu777/my-wiki
-repo_name: nyufufu777/my-wiki
 
 theme:
   name: material
@@ -51,14 +49,7 @@ markdown_extensions:
       permalink: true
 
 nav:
-  - Home: index.md
-  - Learning path: learning-path/README.md
-  - Concepts: concepts/README.md
-  - Technologies: technologies/README.md
-  - Projects: projects/README.md
-  - Practices: practices/README.md
-  - Decisions: decisions/README.md
-  - Writing guide: writing-guide.md
-  - Examples:
-      - Python: programming/python.md
-      - Neuroscience: science/neuroscience.md
+  - 技術資料:
+      - 基礎概念: concepts/README.md
+      - 技術別ノート: technologies/README.md
+      - プロジェクト解説: projects/README.md
