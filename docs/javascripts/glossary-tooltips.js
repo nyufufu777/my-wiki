@@ -72,7 +72,7 @@
     return wrapper;
   }
 
-  function annotateTextNode(node) {
+  function annotateTextNode(node, seenTerms) {
     const text = node.nodeValue;
     pattern.lastIndex = 0;
     if (!pattern.test(text)) return;
@@ -83,7 +83,12 @@
     let match;
     while ((match = pattern.exec(text)) !== null) {
       fragment.append(document.createTextNode(text.slice(cursor, match.index)));
-      fragment.append(createTerm(match[0], definitionFor.get(match[0])));
+      if (seenTerms.has(match[0])) {
+        fragment.append(document.createTextNode(match[0]));
+      } else {
+        fragment.append(createTerm(match[0], definitionFor.get(match[0])));
+        seenTerms.add(match[0]);
+      }
       cursor = match.index + match[0].length;
     }
     fragment.append(document.createTextNode(text.slice(cursor)));
@@ -93,6 +98,7 @@
   function annotateTerms() {
     const article = document.querySelector("article.md-content__inner");
     if (!article || article.closest(".glossary-page")) return;
+    const seenTerms = new Set();
     const walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT, {
       acceptNode(node) {
         if (!node.nodeValue.trim() || node.parentElement.closest(skipSelector)) {
@@ -103,7 +109,7 @@
     });
     const nodes = [];
     while (walker.nextNode()) nodes.push(walker.currentNode);
-    nodes.forEach(annotateTextNode);
+    nodes.forEach((node) => annotateTextNode(node, seenTerms));
   }
 
   document.addEventListener("click", () => {
