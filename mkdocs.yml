@@ -28,6 +28,9 @@ theme:
         icon: material/brightness-4
         name: ライトモードに切り替え
 
+extra_css:
+  - stylesheets/extra.css
+
 plugins:
   - search:
       lang: ja
@@ -49,6 +52,10 @@ markdown_extensions:
       permalink: true
 
 nav:
-  - 記事:
+  - システムとネットワーク:
       - API入門：使う側から設計する側まで: api.md
+      - APIの内部：DNSからカーネルまで: api-internals.md
       - Sandbox入門：隔離・権限・調査の出発点: sandbox.md
+      - Sandboxの内部：OSが境界を作る仕組み: sandbox-internals.md
+  - Codex:
+      - Codexのsandboxと承認: codex-sandbox.md
