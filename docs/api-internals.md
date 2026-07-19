@@ -2,10 +2,25 @@
 
 API を `fetch()` や `curl` で呼ぶと一行に見える。でも OS とネットワークの中では、名前解決、暗号化、接続、プロセス間の受け渡し、ディスク読み書きが連鎖している。
 
-```text
-アプリ → DNS → TCP接続 → TLS暗号化 → HTTP → サーバープロセス
-      → カーネルのソケット → DB/ディスク → 応答が逆向きに戻る
+```mermaid
+sequenceDiagram
+    participant App as アプリ
+    participant DNS
+    participant Kernel as OS / kernel
+    participant API as API サーバー
+    participant DB as DB
+
+    App->>DNS: api.example.com を問い合わせる
+    DNS-->>App: IP アドレス
+    App->>Kernel: TCP / TLS 接続を開始
+    Kernel->>API: HTTPS リクエスト
+    API->>DB: データを読み書き
+    DB-->>API: 結果
+    API-->>Kernel: HTTP レスポンス
+    Kernel-->>App: レスポンスの bytes
 ```
+
+アプリから見れば `fetch()` は一行でも、下では名前解決・接続・暗号化・サーバー処理が順に走る。遅い、つながらない、といった障害はこの経路のどこで止まったかとして切り分ける。
 
 ## 1. URLをIPアドレスへ変える：DNS
 
