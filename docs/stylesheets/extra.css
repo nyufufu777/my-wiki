@@ -1,0 +1,70 @@
+:root {
+  --wiki-heading: var(--md-primary-fg-color);
+}
+
+.md-typeset {
+  font-size: 0.82rem;
+  line-height: 1.85;
+}
+
+.md-typeset h1 {
+  margin: 0 0 1.35rem;
+  color: var(--wiki-heading);
+  font-size: 2.25em;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.25;
+}
+
+.md-typeset h2 {
+  margin-top: 3.2rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 2px solid color-mix(in srgb, var(--md-primary-fg-color) 36%, transparent);
+  color: var(--wiki-heading);
+  font-size: 1.55em;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.md-typeset h3 {
+  margin-top: 2.25rem;
+  color: var(--md-default-fg-color);
+  font-size: 1.18em;
+  font-weight: 750;
+}
+
+.md-typeset p,
+.md-typeset li {
+  max-width: 78ch;
+}
+
+.md-typeset strong {
+  color: var(--md-primary-fg-color);
+  font-weight: 800;
+}
+
+.md-typeset table:not([class]) {
+  display: table;
+  width: 100%;
+  border: 1px solid var(--md-default-fg-color--lighter);
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.md-typeset table:not([class]) th {
+  background: color-mix(in srgb, var(--md-primary-fg-color) 12%, transparent);
+  color: var(--md-primary-fg-color);
+  font-weight: 800;
+}
+
+.md-typeset pre {
+  margin: 1.45em 0;
+  border-left: 4px solid var(--md-primary-fg-color);
+}
+
+.md-typeset :not(pre) > code {
+  padding: 0.12em 0.35em;
+  border-radius: 0.2rem;
+  color: var(--md-primary-fg-color);
+  font-weight: 650;
+}
