@@ -51,3 +51,4 @@ markdown_extensions:
 nav:
   - 記事:
       - API入門：使う側から設計する側まで: api.md
+      - Sandbox入門：隔離・権限・調査の出発点: sandbox.md
