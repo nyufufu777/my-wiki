@@ -8,7 +8,15 @@
   background: var(--wiki-surface);
   backdrop-filter: blur(18px) saturate(160%);
   border-bottom: 1px solid color-mix(in srgb, var(--md-default-bg-color) 65%, transparent);
+  color: var(--md-default-fg-color);
   box-shadow: 0 0.35rem 1.5rem color-mix(in srgb, var(--md-default-fg-color) 7%, transparent);
+}
+
+.md-header .md-header__button,
+.md-header .md-header__topic,
+.md-header .md-search__input,
+.md-header .md-search__input::placeholder {
+  color: var(--md-default-fg-color);
 }
 
 .md-typeset {
@@ -214,15 +222,29 @@
 }
 
 @media screen and (min-width: 76.25em) {
+  .md-header__inner.md-grid {
+    margin: 0;
+    max-width: none;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+    width: 100%;
+  }
+
   .md-header__button[for="__drawer"] {
     display: flex;
+    margin-left: 0;
+    order: -1;
   }
 
   .md-main__inner {
-    display: block;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .md-sidebar--primary {
+    display: none !important;
+  }
+
+  .md-sidebar--secondary {
     display: none !important;
   }
 
