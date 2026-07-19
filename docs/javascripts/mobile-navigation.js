@@ -13,4 +13,12 @@
   }
 
   document.addEventListener("DOMContentLoaded", collapseNavigation);
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const drawer = document.querySelector("#__drawer");
+
+    drawer?.addEventListener("change", () => {
+      if (drawer.checked) collapseNavigation();
+    });
+  });
 })();
