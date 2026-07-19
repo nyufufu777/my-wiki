@@ -31,6 +31,7 @@ extra_css:
 
 extra_javascript:
   - javascripts/mobile-navigation.js
+  - javascripts/glossary-tooltips.js
 
 plugins:
   - search:
@@ -57,6 +58,8 @@ markdown_extensions:
       permalink: true
 
 nav:
+  - はじめに:
+      - 用語集: glossary.md
   - システムとネットワーク:
       - API:
           - APIの種類と認証：目的に合わせて選ぶ: api-types.md
