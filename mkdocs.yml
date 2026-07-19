@@ -34,6 +34,7 @@ extra_css:
 extra_javascript:
   - javascripts/mobile-navigation.js
   - javascripts/glossary-tooltips.js
+  - javascripts/glossary-first-occurrence.js
   - javascripts/glossary-positioning.js
 
 plugins:
