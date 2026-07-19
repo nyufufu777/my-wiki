@@ -2,14 +2,21 @@
 
 sandbox は一つの機能名ではない。OS が持つ複数の仕組みを組み合わせて、「このプロセスにはここまで」という境界を作る。
 
-```text
-process
-  ├─ どのユーザーIDで動くか
-  ├─ どのファイルパスを見られるか
-  ├─ どのシステムコールを許すか
-  ├─ CPU・メモリをどこまで使えるか
-  └─ どのネットワークへ出られるか
+```mermaid
+flowchart TB
+    process[プロセス] --> identity[UID / GID]
+    process --> filesystem[ファイルシステム境界]
+    process --> syscall[許可する system call]
+    process --> network[ネットワーク方針]
+    process --> resources[CPU / メモリ / プロセス数]
+    identity --> sandbox[Sandbox としての実行環境]
+    filesystem --> sandbox
+    syscall --> sandbox
+    network --> sandbox
+    resources --> sandbox
 ```
+
+sandbox は一個のスイッチではない。プロセスに対して「誰として動くか」「何を見られるか」「何を呼べるか」「どこへ出られるか」「どれだけ使えるか」を重ねて制限する。
 
 ## プロセスはOSから見た「実行中のプログラム」
 

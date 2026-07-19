@@ -2,11 +2,17 @@
 
 LangGraph は、LLM を使う処理を **state（状態）** と **graph（遷移）** として組み立てる Python/JavaScript 向けフレームワーク。単純な「入力→モデル→出力」ではなく、分岐、ループ、ツール実行、中断、再開を明示的に扱いたいときに向く。
 
-```text
-START → 入力検証 → モデル/処理 → 条件分岐 → tool実行 → モデル/処理 → END
-                               ↑                         │
-                               └──────── 必要ならループ ───┘
+```mermaid
+flowchart LR
+    start([START]) --> validate[入力検証]
+    validate --> model[モデル / 処理]
+    model --> decision{tool が必要か}
+    decision -->|はい| tools[tool 実行]
+    tools --> model
+    decision -->|いいえ| finish([END])
 ```
+
+このように「何を state として持つか」と「どの条件で次の node を選ぶか」を明示するから、単なる `while` ループより停止条件・分岐・再開位置を追いやすい。
 
 ## 何を解決するのか
 
