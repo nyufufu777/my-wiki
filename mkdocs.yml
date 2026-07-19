@@ -49,7 +49,4 @@ markdown_extensions:
       permalink: true
 
 nav:
-  - 技術資料:
-      - 基礎概念: concepts/README.md
-      - 技術別ノート: technologies/README.md
-      - プロジェクト解説: projects/README.md
+  - API: index.md
