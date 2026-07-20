@@ -72,6 +72,7 @@ nav:
       - Sandbox:
           - 入門：隔離・権限・調査の出発点: sandbox.md
           - 内部：OSが境界を作る仕組み: sandbox-internals.md
+          - ネームスペース：プロセスごとに見える世界を分ける: namespaces.md
   - Codex:
       - Codexのsandboxと承認: codex-sandbox.md
   - ソフトウェア設計:
