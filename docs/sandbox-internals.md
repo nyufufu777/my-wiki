@@ -104,3 +104,54 @@ flowchart LR
 ```
 
 製品固有の「どの設定でどこまで実行できるか」は、OS の仕組みとは別に確認します。たとえば Codex の設定は [Codexのsandboxと承認](codex-sandbox.md) に分けています。
+
+## コマンドが拒否されるまで：カーネルの判定経路を追う
+
+シェルで入力したコマンドは、直接ファイルやネットワークを操作するわけではありません。シェルが子プロセスを起動し、そのプロセスが system call（ユーザー空間のプログラムがカーネルへ操作を依頼する入口）を発行します。カーネルはその時点の名前空間、マウント、UID/GID、アクセス制御、seccomp、資源上限を照合して結果を返します。
+
+### 例1：ファイルへ書き込む場合
+
+```text
+echo result > /workspace/out.txt
+  → シェルがファイルを開くため openat() を呼ぶ
+  → seccomp が openat() や指定されたフラグを許可するか確認する
+  → mount namespace が /workspace の実体を決める
+  → カーネルが UID/GID、ACL、read-only mount を確認する
+  → 許可: ファイル記述子を返す / 拒否: -EACCES や -EROFS を返す
+  → 許可された場合だけ write() が内容を書き込む
+```
+
+`Permission denied` はアプリケーションが壊れたという意味ではありません。カーネルから `EACCES`（アクセス拒否）が返った可能性があります。一方、読み取り専用のマウントでは `EROFS` が返ります。どちらも「パスの文字列が正しいか」とは別の層の問題です。
+
+### 例2：HTTPSへ接続する場合
+
+```text
+curl https://api.example.test/data
+  → curl プロセスが DNS を問い合わせる
+  → socket() で通信口を作り、connect() で接続を依頼する
+  → network namespace のNIC・経路・DNS設定が参照される
+  → egress policy、firewall、proxy、宛先許可リストが出口を判定する
+  → 許可: TCP/TLS接続へ進む / 拒否: timeout、connection refused、policy error など
+```
+
+DNS の成功はインターネットへの到達を保証しません。名前解決、ルーティング、TCP接続、TLS、HTTP認証は別々の段階です。どの段階で止まったかを分けると、通信失敗を「ネットワークが使えない」と一括りにせず調査できます。
+
+## 失敗を制限レイヤーへ結び付ける
+
+書き込みや設定変更を試す前に、観測だけを行います。以下は Linux の代表例です。Sandbox によってコマンド自体が許可されない場合があるため、その場合は実行環境の診断機能や管理者向けログを確認します。なお、`curl -v` は状態を変更しない `GET` でも外部へリクエストを送信し、相手側にアクセスログを残します。外部通信の許可範囲を確認してから使います。
+
+| 症状 | まず疑う層 | 読み取り中心の観測例 | 読み方 |
+| --- | --- | --- | --- |
+| `Permission denied` | UID/GID、ACL、書き込み権限 | `id`、`ls -ld /target`、`getfacl /target` | 実行ユーザーと所有者・権限ビット・ACLの対応を見る |
+| `Read-only file system` | mount namespace、read-only mount | `findmnt -T /target`、`mount` | 対象パスを含むマウントが `ro` か確認する |
+| 接続 timeout | network namespace、経路、egress policy | `ip route`、`getent hosts example.com`、`curl -v` | DNS、経路、TCP接続のどこまで進んだかを見る |
+| `Killed`、OOM | cgroupまたはOSのメモリ上限 | `cat /sys/fs/cgroup/memory.max`、`cat /sys/fs/cgroup/memory.events` | `oom_kill` の増加や上限値を確認する |
+| `Operation not permitted` | capability、seccomp、カーネル方針 | `capsh --print`、`grep -E 'Seccomp|Cap' /proc/$$/status` | 特権能力またはsystem callの制限を疑う |
+
+観測コマンドは、拒否の理由を必ず特定する魔法ではありません。例えば `connect()` の拒否は、コンテナの外側にあるクラウドの egress policy で起きることもあります。その場合、Sandbox 内からは「timeout」という症状だけが見えます。見えている事実と、外側にあるかもしれない制御を区別することが重要です。
+
+## 一次資料
+
+- [Linux man-pages: namespaces(7)](https://man7.org/linux/man-pages/man7/namespaces.7.html)
+- [Linux man-pages: seccomp(2)](https://man7.org/linux/man-pages/man2/seccomp.2.html)
+- [Linux kernel documentation: Control Group v2](https://docs.kernel.org/admin-guide/cgroup-v2.html)

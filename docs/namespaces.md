@@ -2,6 +2,8 @@
 
 Linux の namespace（ネームスペース）は、同じカーネル上で動くプロセスに対して、資源の見え方を分ける機構です。コンテナや Sandbox がホストと異なるプロセス一覧、ネットワーク、マウントを見せられる理由の一部は、この機構にあります。
 
+これは Linux 固有の機構です。Windows や macOS にも隔離やコンテナの機能はありますが、namespace という同じカーネル機構を前提にはできません。このページでは、コンテナで頻繁に使われる Linux の実装を扱います。
+
 ## 「同じマシンで別の世界を見る」とは何か
 
 ホストには多数のプロセス、ネットワーク設定、ファイルシステムがあります。ネームスペースに参加したプロセスは、そのうち自分に割り当てられた範囲だけを基準として扱います。
@@ -99,3 +101,9 @@ readlink /proc/$$/ns/net
 ネームスペースは「何が見えるか」を分けますが、資源消費、システムコール、通信先の許可までは単独で制御しません。Sandbox を設計・調査するときは、ネームスペース、ファイル権限、seccomp、cgroups、ネットワーク方針を別々に確認します。
 
 これらの層の全体像は [Sandboxの内部：OSが境界を作る仕組み](sandbox-internals.md) を参照してください。
+
+## 一次資料
+
+- [Linux man-pages: namespaces(7)](https://man7.org/linux/man-pages/man7/namespaces.7.html)
+- [Linux man-pages: unshare(1)](https://man7.org/linux/man-pages/man1/unshare.1.html)
+- [Linux man-pages: user_namespaces(7)](https://man7.org/linux/man-pages/man7/user_namespaces.7.html)
