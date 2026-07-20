@@ -25,13 +25,16 @@ sequenceDiagram
   UI->>AS: initialized (notification)
   UI->>AS: thread/start
   UI->>AS: turn/start (ユーザーの依頼)
-  AS->>UI: item/agentMessage/delta
+  AS->>C: ThreadとTurnを実行
   C->>W: コマンド実行・ファイル編集
+  W-->>C: 実行結果
+  C-->>AS: 文章・作業イベント
+  AS->>UI: item/agentMessage/delta
   AS->>UI: item/completed
   AS->>UI: turn/completed
 ```
 
-画面側は、`turn/completed` が来るまでstdoutを読み続ける。途中の `item/agentMessage/delta` を会話欄へ追記し、`item/completed` のコマンドや編集結果をアクティビティ欄へ出す、と分けると実装しやすい。
+App Serverは、UIから受けたTurnをCodex agentへ渡し、agentの文章・作業イベントをUIへ戻す中継点になる。画面側は、`turn/completed` が来るまでstdoutを読み続ける。途中の `item/agentMessage/delta` を会話欄へ追記し、`item/completed` のコマンドや編集結果をアクティビティ欄へ出す、と分けると実装しやすい。
 
 ## 用語：Thread、Turn、Item
 
