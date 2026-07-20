@@ -22,6 +22,8 @@
 .md-typeset {
   font-size: 0.95rem;
   line-height: 1.85;
+  max-width: none;
+  width: 100%;
 }
 
 .md-typeset h1,
@@ -57,7 +59,7 @@
 
 .md-typeset p,
 .md-typeset li {
-  max-width: 72ch;
+  max-width: none;
 }
 
 .md-typeset strong {
