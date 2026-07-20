@@ -77,6 +77,8 @@ nav:
           - 構築：WindowsでSandbox環境を組み立てる: sandbox-build-windows.md
   - Codex:
       - Codexのsandboxと承認: codex-sandbox.md
+      - "App Server: Codexを操作する画面を作る": codex-app-server.md
+      - "Codex SDK: コード作業をアプリへ組み込む": codex-sdk.md
   - ソフトウェア設計:
       - SDK:
           - SDK入門：APIを使いやすくする部品群: sdk.md
