@@ -82,6 +82,7 @@ nav:
   - 実践・検証:
       - 実践・検証の入口: practices/index.md
       - Codex 自動実行の3方式を比較する: practices/codex-automation.md
+      - cronでCodexを定期実行するスケジューラーを作る: practices/codex-scheduler.md
   - ソフトウェア設計:
       - SDK:
           - SDK入門：APIを使いやすくする部品群: sdk.md
