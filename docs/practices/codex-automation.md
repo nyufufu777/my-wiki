@@ -46,6 +46,146 @@ bash scripts/run-exec.sh
 CODEX_MODEL=gpt-5.4 bash scripts/run-exec.sh
 ```
 
+## 検証に使ったスクリプト
+
+下のスクリプトは検証リポジトリで実際に実行したもの。プロンプトは `prompts/documentation-audit.md`、出力Schemaは `schema/report.schema.json` に分離している。コードの最新版は [codex-automation-lab](https://github.com/nyufufu777/codex-automation-lab) を正とする。
+
+<details>
+<summary><code>codex exec</code> を起動する <code>scripts/run-exec.sh</code></summary>
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+output_dir="${OUTPUT_DIR:-$repo_root/output}"
+mkdir -p "$output_dir"
+
+"${CODEX_BIN:-codex}" exec \
+  --model "${CODEX_MODEL:-gpt-5.4}" \
+  --sandbox read-only \
+  --output-schema "$repo_root/schema/report.schema.json" \
+  --output-last-message "$output_dir/exec-report.json" \
+  --cd "$repo_root" \
+  "$(<"$repo_root/prompts/documentation-audit.md")"
+```
+
+`--output-schema` が最終回答のJSON形式を固定し、`--output-last-message` が結果を保存する。cronからもこのスクリプトを起動するため、モデル・sandbox・作業ディレクトリをここで固定している。
+
+</details>
+
+<details>
+<summary>一回限りのcron登録・解除</summary>
+
+```bash
+#!/usr/bin/env bash
+# scripts/install-cron-once.sh
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+marker="# codex-automation-lab-once"
+schedule="${CRON_SCHEDULE:?Set CRON_SCHEDULE, for example '17 2 * * *'}"
+log_path="$repo_root/output/cron.log"
+
+mkdir -p "$repo_root/output"
+existing="$(crontab -l 2>/dev/null || true)"
+cleaned="$(printf '%s\n' "$existing" | grep -F -v "$marker" || true)"
+entry="$schedule cd '$repo_root' && '$repo_root/scripts/run-exec.sh' >> '$log_path' 2>&1 $marker"
+printf '%s\n%s\n' "$cleaned" "$entry" | crontab -
+```
+
+```bash
+#!/usr/bin/env bash
+# scripts/remove-cron.sh
+set -euo pipefail
+
+marker="# codex-automation-lab-once"
+existing="$(crontab -l 2>/dev/null || true)"
+printf '%s\n' "$existing" | grep -F -v "$marker" | crontab -
+```
+
+実行確認用の `scripts/verify-cron-once.sh` は次の流れで、次の分に一度だけ登録する。
+
+```bash
+systemctl is-active --quiet cron
+schedule="$(date -d '+1 minute' '+%M %H %d %m *')"
+CRON_SCHEDULE="$schedule" ./scripts/install-cron-once.sh
+sleep "$wait_seconds"
+test -s output/cron.log
+./scripts/remove-cron.sh
+```
+
+markerを付けた行だけを削除するため、既存のcron定義をまとめて消さない。検証後には `crontab -l` で空、または意図した既存定義だけが残っていることを確認する。
+
+</details>
+
+<details>
+<summary>SDKから起動する <code>scripts/run-sdk.mjs</code></summary>
+
+```js
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { Codex } from "@openai/codex-sdk";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const outputDir = process.env.OUTPUT_DIR ?? path.join(root, "output");
+const prompt = await readFile(path.join(root, "prompts", "documentation-audit.md"), "utf8");
+const outputSchema = JSON.parse(await readFile(path.join(root, "schema", "report.schema.json"), "utf8"));
+await mkdir(outputDir, { recursive: true });
+
+const codex = new Codex();
+const thread = codex.startThread({
+  model: process.env.CODEX_MODEL ?? "gpt-5.4",
+  workingDirectory: root,
+  sandboxMode: "read-only",
+});
+const result = await thread.run(prompt, { outputSchema });
+await writeFile(path.join(outputDir, "sdk-report.json"), result.finalResponse.trim() + "\n");
+```
+
+`thread` を保持すれば、次の `run()` に前のやり取りを引き継げる。定期実行で毎回独立した監査をする場合は、スレッドを使い捨てにする。
+
+</details>
+
+<details>
+<summary>App ServerへJSON-RPCを送る <code>scripts/run-app-server.mjs</code></summary>
+
+```js
+const child = spawn(process.env.CODEX_BIN ?? "codex", ["app-server"], {
+  cwd: root,
+  stdio: ["pipe", "pipe", "pipe"],
+});
+const send = (message) => child.stdin.write(`${JSON.stringify(message)}\n`);
+
+send({
+  method: "initialize",
+  id: 0,
+  params: { clientInfo: { name: "codex-automation-lab", title: "Codex Automation Lab", version: "0.1.0" } },
+});
+send({ method: "initialized", params: {} });
+send({
+  method: "thread/start",
+  id: 1,
+  params: { cwd: root, sandbox: "read-only", model: process.env.CODEX_MODEL ?? "gpt-5.4" },
+});
+
+// thread/start の応答を受けた後に送る
+send({
+  method: "turn/start",
+  id: 2,
+  params: {
+    threadId,
+    input: [{ type: "text", text: prompt }],
+    outputSchema,
+  },
+});
+```
+
+実装全体では、標準出力のJSONLを1行ずつ読み、`item/completed` から最終メッセージを回収し、`turn/completed` で終了する。イベントログは `output/app-server-events.jsonl` に保存する。[完全なスクリプト](https://github.com/nyufufu777/codex-automation-lab/blob/main/scripts/run-app-server.mjs) には、エラーとプロセス終了の処理も含まれる。
+
+</details>
+
 ## `codex exec` をcronで動かす場合
 
 cronは「時刻にシェルコマンドを起動するだけ」で、認証も作業ディレクトリもskillも面倒を見ない。対話ターミナルでは動くのにcronでは失敗する原因は、ほぼここにある。
