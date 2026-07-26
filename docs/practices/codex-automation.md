@@ -57,10 +57,14 @@ CODEX_MODEL=gpt-5.4 bash scripts/run-exec.sh
 #!/usr/bin/env bash
 set -euo pipefail
 
+# cronでは起動時の作業ディレクトリが不定なので、スクリプト位置から絶対パスを決める。
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# 監査結果だけを入力資料と分けて保存する。
 output_dir="${OUTPUT_DIR:-$repo_root/output}"
 mkdir -p "$output_dir"
 
+# ジョブの挙動を固定する。モデル、読み取り専用sandbox、JSONの形式、cwdを指定する。
+# --output-last-messageは最終回答だけを後続処理向けに保存する。
 "${CODEX_BIN:-codex}" exec \
   --model "${CODEX_MODEL:-gpt-5.4}" \
   --sandbox read-only \
@@ -82,14 +86,18 @@ mkdir -p "$output_dir"
 # scripts/install-cron-once.sh
 set -euo pipefail
 
+# cronはカレントディレクトリを引き継がないため、絶対パスで起動する。
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# この検証で追加した行だけを識別する。
 marker="# codex-automation-lab-once"
 schedule="${CRON_SCHEDULE:?Set CRON_SCHEDULE, for example '17 2 * * *'}"
 log_path="$repo_root/output/cron.log"
 
 mkdir -p "$repo_root/output"
+# 既存の登録を残し、同じ検証行だけを置き換える。
 existing="$(crontab -l 2>/dev/null || true)"
 cleaned="$(printf '%s\n' "$existing" | grep -F -v "$marker" || true)"
+# stdoutとstderrをログへ残し、対話環境と異なる失敗を調べられるようにする。
 entry="$schedule cd '$repo_root' && '$repo_root/scripts/run-exec.sh' >> '$log_path' 2>&1 $marker"
 printf '%s\n%s\n' "$cleaned" "$entry" | crontab -
 ```
@@ -99,6 +107,7 @@ printf '%s\n%s\n' "$cleaned" "$entry" | crontab -
 # scripts/remove-cron.sh
 set -euo pipefail
 
+# marker付きの検証行だけを消し、利用者の既存ジョブには触れない。
 marker="# codex-automation-lab-once"
 existing="$(crontab -l 2>/dev/null || true)"
 printf '%s\n' "$existing" | grep -F -v "$marker" | crontab -
@@ -128,19 +137,24 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Codex } from "@openai/codex-sdk";
 
+// 実行場所に依存せず、スクリプト位置からリポジトリの基準パスを決める。
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outputDir = process.env.OUTPUT_DIR ?? path.join(root, "output");
+// 指示と出力Schemaをコードから分け、同じタスクを別方式でも再利用する。
 const prompt = await readFile(path.join(root, "prompts", "documentation-audit.md"), "utf8");
 const outputSchema = JSON.parse(await readFile(path.join(root, "schema", "report.schema.json"), "utf8"));
 await mkdir(outputDir, { recursive: true });
 
+// SDKはローカルCodexを制御し、threadで会話状態を保持できる。
 const codex = new Codex();
 const thread = codex.startThread({
   model: process.env.CODEX_MODEL ?? "gpt-5.4",
   workingDirectory: root,
   sandboxMode: "read-only",
 });
+// 1ターンの読み取り専用監査を実行し、Schemaに従う最終回答を受け取る。
 const result = await thread.run(prompt, { outputSchema });
+// 後続処理が読むJSONだけをoutput/へ保存する。
 await writeFile(path.join(outputDir, "sdk-report.json"), result.finalResponse.trim() + "\n");
 ```
 
@@ -152,25 +166,29 @@ await writeFile(path.join(outputDir, "sdk-report.json"), result.finalResponse.tr
 <summary>App ServerへJSON-RPCを送る <code>scripts/run-app-server.mjs</code></summary>
 
 ```js
+// App Serverを子プロセスとして起動し、stdin/stdoutでJSON-RPCを送受信する。
 const child = spawn(process.env.CODEX_BIN ?? "codex", ["app-server"], {
   cwd: root,
   stdio: ["pipe", "pipe", "pipe"],
 });
+// stdio transportでは、1行ずつJSON-RPCメッセージを送る。
 const send = (message) => child.stdin.write(`${JSON.stringify(message)}\n`);
 
+// 先にクライアント情報を渡して接続を初期化する。
 send({
   method: "initialize",
   id: 0,
   params: { clientInfo: { name: "codex-automation-lab", title: "Codex Automation Lab", version: "0.1.0" } },
 });
 send({ method: "initialized", params: {} });
+// 次に、読み取り専用・明示モデルのスレッドを作る。
 send({
   method: "thread/start",
   id: 1,
   params: { cwd: root, sandbox: "read-only", model: process.env.CODEX_MODEL ?? "gpt-5.4" },
 });
 
-// thread/start の応答を受けた後に送る
+// thread/start の応答から得たthreadIdへ、Schema付きの監査ターンを送る。
 send({
   method: "turn/start",
   id: 2,
